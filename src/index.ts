@@ -119,9 +119,12 @@ export function match(
 
           const vchild = vnode[attr];
 
+          // Push node to handle at the top of the loop
           if (isHole(pchild)) stack.push([pchild, vchild]);
           else if (typeof pchild !== typeof vchild) continue next_case;
+          // Push node onto stack to descend into
           else if (typeof pchild === "object") stack.push([pchild, vchild]);
+          // Leaf comparison
           else if (vchild !== pchild) continue next_case;
         }
       }
@@ -129,6 +132,7 @@ export function match(
     }
 
     // maybe this can be folded into the logic above
+    // Leaf comparison
     if (patternRoot !== valueRoot) continue next_case;
     return handler(valueRoot);
   }
