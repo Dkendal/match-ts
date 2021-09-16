@@ -135,5 +135,5 @@ describe(".match", () => {
 
   test.todo("rest holes throw if used outside of an array");
 
-  test.todo("supports typed holes");
+  test.todo("variable captures");
 });
