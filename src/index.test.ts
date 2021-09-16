@@ -100,19 +100,19 @@ describe(".match", () => {
   });
 
   test.each([
-    [[1], when([__.tail], ok)],
-    // At least one element
-    [[], when([__.tail], err), when(__, ok)],
-    [[1, 2], when([__.tail], ok)],
-    [[1, 2, 3], when([1, __.tail], ok)],
-    [[1, 2, 3], when([1, 2, __.tail], ok)],
+    [[1], when([__.rest], ok)],
+    // matches 0 elements
+    [[], when([__.rest], ok)],
+    [[1, 2], when([__.rest], ok)],
+    [[1, 2, 3], when([1, __.rest], ok)],
+    [[1, 2, 3], when([1, 2, __.rest], ok)],
   ])("rest holes (%#)", (value, ...cases: any[]) => {
     const result = match(value, ...cases);
     expect(result).toBe(true);
   });
 
   test("rest holes throw if there are multiple rests in an array", () => {
-    const fn = () => match([1, 2, 3], when([__.tail, __.tail], ok));
+    const fn = () => match([1, 2, 3], when([__.rest, __.rest], ok));
     expect(fn).toThrow();
   });
 

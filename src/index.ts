@@ -30,14 +30,13 @@ function testHole(hole: Hole, term: unknown): boolean {
   const holeKind = hole[kind];
 
   switch (holeKind) {
+    // FIXME this doesn't really work like the others it only receives one of
+    // the "rest" values, but has logic that disables checking that arrays
+    // are the same length. this is more imporant if we want to capture
+    // values.
+    case rest_:
     case any_:
       return true;
-    case rest_:
-      // FIXME this doesn't really work like the others it only receives one of
-      // the "rest" values, but has logic that disables checking that arrays
-      // are the same length. this is more imporant if we want to capture
-      // values.
-      return term !== undefined;
     default:
       return typeof term === holeKind;
   }
