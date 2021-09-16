@@ -82,6 +82,6 @@ Primitive types can be matched with special operators:
 #+end_src
 
 ** TODOs
-*** TODO Add variable captures
-*** TODO Proper type inference right-hand-side of match case
-*** TODO exhaustive type check for match cases
+- [ ] Add variable captures
+- [ ] Proper type inference right-hand-side of match case
+- [ ] Exhaustive type check for match cases
