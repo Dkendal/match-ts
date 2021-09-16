@@ -99,11 +99,10 @@ export function match(
         }
 
         // Special case for arrays
-        // TODO check last value of expected for a rest hole
         if (
           pnode instanceof Array
           && pnode.length !== vnode.length
-          // If the list has any element and the last is not a "rest"
+          // If the list has any elements and the last is not a "rest"
           && (pnode.length === 0 || pnode[pnode.length - 1] !== rest)
         ) {
           continue next_case;
