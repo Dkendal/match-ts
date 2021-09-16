@@ -1,5 +1,6 @@
 {
   "name": "pattern-match",
+  "author": "Dylan Kendal <dylankendal@gmail>",
   "engines": {
     "node": "10"
   },

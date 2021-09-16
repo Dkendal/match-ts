@@ -9,7 +9,7 @@ const config = {
   },
   testEnvironment: "node",
   moduleFileExtensions: ["ts", "js", "json"],
-  modulePathIgnorePatterns: ["<rootDir>/dist"],
+  modulePathIgnorePatterns: ["<rootDir>/dist", "<rootDir>/lib"],
 };
 
 module.exports = config;
