@@ -7,7 +7,7 @@ like Elixir/Erlang, ML, F#, etc.
 TODO
 
 ** The =match= function
-The match function let's us compare a value against many patterns until we find
+The match function lets us compare a value against many patterns until we find
 one that matches.
 
 #+begin_src typescript
