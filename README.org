@@ -1,0 +1,82 @@
+* pattern-matching.js
+
+Provides pattern matching features typically found in functional languages
+like Elixir/Erlang, ML, F#, etc.
+
+** Installation
+TODO
+
+** The =match= function
+The match function let's us compare a value against many patterns until we find
+one that matches.
+
+#+begin_src typescript
+  import { match, __ } from "pattern-matching"
+  
+  match([1, 2, 3],
+        [ [4, 5, 6], () => "This clause won't match" ],
+        [ [1, __, 3], () => "This clause will match, __ will match any value" ],
+        [ __, () => "This clause would match any value" ])
+  
+  "This clause will match, __ will match any value"
+#+end_src
+
+The value that was passed into =match= is also passed to the callback:
+
+#+begin_src typescript
+  const x = 10
+  
+  match(x,
+        [ __, (value) => value * 10])
+  100
+#+end_src
+
+If none of the cases match and error is thrown:
+
+#+begin_src typescript
+  match([1, 2, 3]
+        [ [1, 2], () => "this won't match as the array lengths don't agree"])
+  // (Error) unmatched case: [1, 2, 3]
+#+end_src
+
+Array's are matched as tuples, the lengths have to be the same:
+
+#+begin_src typescript
+  match([1, 2, 3]
+        [ [1, 2], () => "this won't match"],
+        [ [1, 2, 3], () => "this will match"])
+  "this will match" 
+#+end_src
+
+
+The tail of a list can be matched with =__.rest=, or it's aliases
+=__.tail= or =__.tl=:
+
+#+begin_src typescript
+  import { match, __ } from "pattern-matching"
+  
+  match(range(50, 100),
+        [ [50, 51, __.rest], () => "this will match"])
+  "this will match" 
+#+end_src
+
+Primitive types can be matched with special operators:
+
+#+begin_src typescript
+  import { match, __ } from "pattern-matching"
+  
+  const thingy: {
+    data: {
+      someNumber: 1,
+      metadata: {foobar: 'foobar'},
+      someOtherProp: {},
+    }
+    list: [1, 2, 3]
+  };
+  
+  match(thingy,
+        [ { data: { someNumber: __.number,
+                    metadata: __.object },
+            list: [__, __.rest] }, () => "this will match"])
+  "this will match" 
+#+end_src
