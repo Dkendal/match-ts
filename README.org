@@ -80,3 +80,8 @@ Primitive types can be matched with special operators:
             list: [__, __.rest] }, () => "this will match"])
   "this will match" 
 #+end_src
+
+** TODOs
+*** TODO Add variable captures
+*** TODO Proper type inference right-hand-side of match case
+*** TODO exhaustive type check for match cases
