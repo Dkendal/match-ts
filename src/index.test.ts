@@ -1,15 +1,11 @@
-import { __, match, when } from "./index";
+import { __, match, V, when } from "./index";
 
 const ok = () => true;
 const err = () => "error";
 const id = <T>(term: T): T => term;
+const noMatch = Symbol.for("no match");
 
 describe(".match", () => {
-  test("calls the callback with the value", () => {
-    const result = match(1, [1, id]);
-    expect(result).toEqual(1);
-  });
-
   test("literal values", () => {
     const result = match(1, [1, ok]);
     expect(result).toBe(true);
@@ -133,7 +129,23 @@ describe(".match", () => {
     expect(result).toBe(true);
   });
 
-  test.todo("rest holes throw if used outside of an array");
+  test.each([
+    // test table start
+    [1, V("x"), { x: 1 }],
+    [1, V("x")(__), { x: 1 }],
+    [1, V("x")(__.number), { x: 1 }],
+    [1, V("x")(__.string), noMatch],
+    [{ a: 1, b: 2 }, { a: V("x") }, { x: 1 }],
+    [[1, 2, 3], [V("hd"), __.rest], { hd: 1 }],
+    // TODO [[1, 2, 3], [__, V("tl")(__.tail)], { tl: [2, 3] }],
+    // test table end
+  ])("variable capture: %p (%#)", (value: any, pattern: any, expected: any) => {
+    expect(match(value, [pattern, id], [__, () => noMatch])).toEqual(expected);
+  });
 
-  test.todo("variable captures");
+  test("no variables are captured by default", () => {
+    expect(match(1, [__, id])).toEqual({});
+  });
+
+  test.todo("rest holes throw if used outside of an array");
 });

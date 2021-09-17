@@ -1,6 +1,7 @@
 import { inspect } from "util";
 
-const kind = Symbol.for("kind");
+const __kind__ = Symbol.for("kind");
+const __capture__ = Symbol.for("capture");
 
 type Kind =
   | typeof any_
@@ -20,14 +21,59 @@ const function_ = "function";
 const object_ = "object";
 const symbol_ = "symbol";
 
+type NonPrimitive = Function | Object;
+
+type Capture<Name extends String = string, Pattern = unknown> =
+  | OpenCapture<Name, Pattern>
+  | ClosedCapture<Name, Pattern>;
+
+interface OpenCapture<Name extends String, Pattern> {
+  (pattern: unknown): ClosedCapture<String, Pattern>;
+  [__capture__]: Name;
+}
+
+interface ClosedCapture<Name extends String, Pattern> {
+  [__capture__]: Name;
+  pattern?: Pattern;
+}
+
+function capture<Name extends String, Pattern>(
+  name: Name,
+): OpenCapture<Name, Pattern> {
+  return Object.assign(
+    (pattern: any): ClosedCapture<Name, Pattern> => {
+      return {
+        [__capture__]: name,
+        pattern,
+      };
+    },
+    {
+      [__capture__]: name,
+    },
+  );
+}
+
+export const V = capture;
+
+function isCapture(term: unknown): term is Capture<string, unknown> {
+  return isNonPrimitive(term) && __capture__ in term;
+}
+
 function isHole(term: unknown): term is Hole {
-  return typeof term === "object" && term !== null && kind in term;
+  return typeof term === "object" && term !== null && __kind__ in term;
+}
+
+function isSpecial(term: unknown): term is Hole | Capture {
+  return (
+    isNonPrimitive(term)
+    && (__kind__ in term || __capture__ in term)
+  );
 }
 
 function testHole(hole: Hole, term: unknown): boolean {
-  if (!(kind in hole)) throw "ni";
+  if (!(__kind__ in hole)) throw "ni";
 
-  const holeKind = hole[kind];
+  const holeKind = hole[__kind__];
 
   switch (holeKind) {
     // FIXME this doesn't really work like the others it only receives one of
@@ -43,17 +89,17 @@ function testHole(hole: Hole, term: unknown): boolean {
 }
 
 interface Hole {
-  [kind]: Kind;
+  [__kind__]: Kind;
 }
 
 function hole<T>(sym: T) {
-  return { [kind]: sym };
+  return { [__kind__]: sym };
 }
 
 export const rest = hole(rest_);
 
 export const __ = {
-  [kind]: any_,
+  [__kind__]: any_,
 
   string: hole(string_),
   number: hole(number_),
@@ -77,10 +123,15 @@ export function match(
   valueRoot: unknown,
   ...cases: [unknown, Function][]
 ): any {
+  // TODO error on no cases
   next_case:
   for (let [patternRoot, handler] of cases) {
+    const captures: Record<string, unknown> = {};
+    // TODO type guards (functions)
+    // if (typeof patternRoot === "function")
+
     // Treat nulls like built-in types despite being objects
-    if (typeof patternRoot === "object" && patternRoot !== null) {
+    if (isNonPrimitive(patternRoot)) {
       // This is a stack based breadth-first-traversal of the "expected" and
       // "actual" objects in tandem. First the node from the "expected" object
       // is pushed on to the stack, along with the node in the same position
@@ -91,6 +142,14 @@ export function match(
       const stack = [[patternRoot, valueRoot]];
       while (stack.length > 0) {
         const [pnode, vnode] = stack.pop() as [any, any];
+
+        if (isCapture(pnode)) {
+          if ("pattern" in pnode) {
+            stack.push([pnode.pattern, vnode]);
+          }
+          captures[pnode[__capture__]] = vnode;
+          continue;
+        }
 
         if (isHole(pnode)) {
           if (testHole(pnode, vnode)) continue;
@@ -119,7 +178,7 @@ export function match(
           const vchild = vnode[attr];
 
           // Push node to handle at the top of the loop
-          if (isHole(pchild)) stack.push([pchild, vchild]);
+          if (isSpecial(pchild)) stack.push([pchild, vchild]);
           else if (typeof pchild !== typeof vchild) continue next_case;
           // Push node onto stack to descend into
           else if (typeof pchild === "object") stack.push([pchild, vchild]);
@@ -127,14 +186,19 @@ export function match(
           else if (vchild !== pchild) continue next_case;
         }
       }
-      return handler(valueRoot);
+      return handler(captures);
     }
 
     // maybe this can be folded into the logic above
     // Leaf comparison
     if (patternRoot !== valueRoot) continue next_case;
-    return handler(valueRoot);
+    return handler(captures);
   }
 
   throw `unmatched case: ${inspect(valueRoot)}`;
+}
+
+function isNonPrimitive(term: unknown): term is NonPrimitive {
+  const t = typeof term;
+  return (t === "object" || t === "function") && term !== null;
 }
