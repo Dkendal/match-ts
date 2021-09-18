@@ -130,7 +130,6 @@ describe(".match", () => {
   });
 
   test.each([
-    // test table start
     [1, V("x"), { x: 1 }],
     [1, V("x")(__), { x: 1 }],
     [1, V("x")(__.number), { x: 1 }],
@@ -138,7 +137,6 @@ describe(".match", () => {
     [{ a: 1, b: 2 }, { a: V("x") }, { x: 1 }],
     [[1, 2, 3], [V("hd"), __.rest], { hd: 1 }],
     // TODO [[1, 2, 3], [__, V("tl")(__.tail)], { tl: [2, 3] }],
-    // test table end
   ])("variable capture: %p (%#)", (value: any, pattern: any, expected: any) => {
     expect(match(value, [pattern, id], [__, () => noMatch])).toEqual(expected);
   });

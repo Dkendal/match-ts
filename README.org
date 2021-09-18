@@ -81,7 +81,88 @@ Primitive types can be matched with special operators:
   "this will match" 
 #+end_src
 
+You can capture variables and use them on the right hand side of match:
+
+#+begin_src typescript
+  import { match, __, V } from "pattern-matching"
+  
+  const thingy: {
+    meta: {
+      type: 'contrived example',
+      x: 1,
+      y: 2,
+    },
+    data: {
+      a: {
+        b: {
+          c: {
+            d: {
+              message: 'hello world'
+              value: 42
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  match(thingy,
+        [{ meta: V('x'),
+           data: { a: { b: { c: { d: { value: V('y') } } } } }
+         }, (captures) => captures])
+  {
+    x: { 
+      type: 'contrived example',
+      x: 1,
+      x: 2,
+    }
+    y: 42
+  }
+#+end_src
+
+Variable captures can also apply a pattern that must also match for the case.
+
+#+begin_src typescript
+  import { match, __, V } from "pattern-matching"
+  
+  const checkout = {
+    object: "list",
+    data: [
+      {
+        id: "li_1",
+        object: "item",
+        ...
+      },
+      {...},
+      {...}
+    ]
+  }
+  match(value,
+        [ { object: 'list',
+            data: V('data')([
+              V('first')({ object: 'item' }),
+              __.rest
+            ])
+          }, (captures) => captures ])
+  
+  {
+    data: [
+      {
+        id: "li_1",
+        object: "item",
+        ...
+      },
+      {...},
+      {...}
+    ]
+    first: {
+      id: "li_1",
+      object: "item",
+      ...
+    },
+  }
+#+end_src
+
 ** TODOs
-- [ ] Add variable captures
 - [ ] Proper type inference right-hand-side of match case
 - [ ] Exhaustive type check for match cases
