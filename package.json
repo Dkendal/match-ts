@@ -1,5 +1,5 @@
 {
-  "name": "pattern-match",
+  "name": "@dkendal/match",
   "author": "Dylan Kendal <dylankendal@gmail>",
   "engines": {
     "node": ">=10"
@@ -11,7 +11,8 @@
     "fmt": "yarn run dprint fmt",
     "clean": "yarn run tsc --build --clean",
     "build": "yarn run tsc --build --verbose --extendedDiagnostics",
-    "build:release": "yarn clean && yarn run tsc --build ./tsconfig-release.json --verbose --extendedDiagnostics"
+    "build:release": "yarn clean && yarn run tsc --build ./tsconfig-release.json --verbose --extendedDiagnostics",
+    "prepublish": "yarn build:release"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",

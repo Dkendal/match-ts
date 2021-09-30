@@ -1,11 +1,13 @@
-# pattern-matching.js
+# @dkendal/match
 
 Provides pattern matching features typically found in functional
 languages like Elixir/Erlang, ML, F\#, etc.
 
 ## Installation
 
-TODO
+```sh
+yarn add @dkendal/match
+```
 
 ## The `match` function
 
@@ -13,7 +15,7 @@ The match function lets us compare a value against many patterns until
 we find one that matches.
 
 ```typescript
-import { __, match, when } from 'pattern-matching'
+import { __, match, when } from "@dkendal/match"
 
 match(
   [1, 2, 3],
