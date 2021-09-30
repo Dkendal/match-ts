@@ -22,7 +22,7 @@ match(
   when(__, () => 'This clause would match any value'),
 )
 
-;('This clause will match, __ will match any value')
+'This clause will match, __ will match any value'
 ```
 
 The value that was passed into `match` is also passed to the callback:
@@ -44,6 +44,39 @@ match([1, 2, 3]
       when([1, 2], () => "this won't match as the array lengths don't agree"))
 // (Error) unmatched case: [1, 2, 3]
 ```
+
+## The `when` function
+
+The `when` function exists purely for typing. When you use it gives the callback
+the proper type expressed in the left-hand-side pattern:
+
+```typescript
+when(
+  V('checkout', {
+    type: 'checkout',
+    lineItems: [V('firstLineItem', { type: 'line_item', data: __ }), __.rest],
+  }),
+  ({ checkout, firstLineItem }) => {
+    var checkout: {
+      type: 'checkout'
+      id: number
+      lineItems: [{
+        type: 'line_item'
+        id: number
+        data: any
+      }, any[]]
+    }
+
+    var firstLineItem: {
+      type: 'line_item'
+      id: number
+      data: any
+    }
+  },
+)
+```
+
+## `match` function continued
 
 Array's are matched as tuples, the lengths have to be the same:
 
