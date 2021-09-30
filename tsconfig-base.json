@@ -5,6 +5,8 @@
 
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "build"
-  }
+    "outDir": "build",
+
+    "types": []
+  },
 }

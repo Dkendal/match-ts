@@ -1,5 +1,4 @@
 import { Narrow } from 'ts-toolbelt/out/Function/Narrow'
-import { inspect } from 'util'
 
 import {
   __capture__,
@@ -217,7 +216,7 @@ export function match(
     return handler(captures)
   }
 
-  throw `unmatched case: ${inspect(valueRoot)}`
+  throw `unmatched case: ${JSON.stringify(valueRoot)}`
 }
 
 type NonPrimitive = Function | Object
