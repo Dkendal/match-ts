@@ -10,7 +10,8 @@
   "scripts": {
     "fmt": "yarn run dprint fmt",
     "clean": "yarn run tsc --build --clean",
-    "build": "yarn run tsc --build --verbose"
+    "build": "yarn run tsc --build --verbose --extendedDiagnostics",
+    "build:release": "yarn clean && yarn run tsc --build ./tsconfig-release.json --verbose --extendedDiagnostics"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
