@@ -34,7 +34,11 @@ checks([
   check<CaptureToEntry<$a<1>>, { a: 1 }, Pass>(),
   check<CaptureToEntry<$a<{ x: 1 }>>, { a: { x: 1 } }, Pass>(),
   check<CaptureToEntry<$a | $b | $c>, { a: any; b: any; c: any }, Pass>(),
-  check<CaptureToEntry<$a<{ b: $b<1> }> | $b<1>>, { a: { b: $b<1> }; b: 1 }, Pass>(),
+  check<
+    CaptureToEntry<$a<{ b: $b<1> }> | $b<1>>,
+    { a: { b: $b<1> }; b: 1 },
+    Pass
+  >(),
 ])
 
 checks([
@@ -58,7 +62,11 @@ checks([
   check<RecursiveCollect<$a<1>>, $a<1>, Pass>(),
   // Nested captures
   check<RecursiveCollect<$a<$b<1>>>, $a<$b<1>> | $b<1>, Pass>(),
-  check<RecursiveCollect<$a<{ b: $b<__>; c: $c<__> }>>, $c<__> | $b<__> | $a<{ b: $b<__>; c: $c<__> }>, Pass>(),
+  check<
+    RecursiveCollect<$a<{ b: $b<__>; c: $c<__> }>>,
+    $c<__> | $b<__> | $a<{ b: $b<__>; c: $c<__> }>,
+    Pass
+  >(),
 ])
 
 checks([
@@ -84,6 +92,10 @@ checks([
   check<VariableCapture<$a<__string>>, { a: string }, Pass>(),
   check<VariableCapture<$a<{}>>, { a: {} }, Pass>(),
   check<VariableCapture<$a<{}> | $b<{}>>, { a: {}; b: {} }, Pass>(),
-  check<VariableCapture<$a<{ b: $b<{}> }> | $b<{}>>, { a: { b: {} }; b: {} }, Pass>(),
+  check<
+    VariableCapture<$a<{ b: $b<{}> }> | $b<{}>>,
+    { a: { b: {} }; b: {} },
+    Pass
+  >(),
   check<VariableCapture<$a<{ b: __ }>>, { a: { b: any } }, Pass>(),
 ])

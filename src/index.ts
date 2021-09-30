@@ -21,9 +21,14 @@ function hole<Type, Label extends Kind>(kind: Label): Hole<Type, Label> {
   return { [__kind__]: kind } as any
 }
 
-function capture<Name extends string>(name: Name): Capture<Name, typeof holes.any>
+function capture<Name extends string>(
+  name: Name,
+): Capture<Name, typeof holes.any>
 
-function capture<Name extends string, Pattern>(name: Name, pattern: Narrow<Pattern>): Capture<Name, Pattern>
+function capture<Name extends string, Pattern>(
+  name: Name,
+  pattern: Narrow<Pattern>,
+): Capture<Name, Pattern>
 
 function capture(name: any, pattern: any = holes.any): Capture<any, any> {
   return Object.freeze({ [__capture__]: name, pattern })
@@ -132,11 +137,17 @@ export interface __ extends Hole<any, 'any'> {
 // TODO better syntax for function object
 export const __: __ = Object.assign(hole(any_), holes)
 
-export function when<Pattern, Handler extends PatternHandler<Pattern>>(a: Pattern, b: Handler): [Pattern, Handler] {
+export function when<Pattern, Handler extends PatternHandler<Pattern>>(
+  a: Pattern,
+  b: Handler,
+): [Pattern, Handler] {
   return [a, b]
 }
 
-export function match(valueRoot: unknown, ...cases: [unknown, Function][]): any {
+export function match(
+  valueRoot: unknown,
+  ...cases: [unknown, Function][]
+): any {
   // TODO error on no cases
   next_case:
   for (let [patternRoot, handler] of cases) {

@@ -41,13 +41,19 @@ describe('.match', () => {
   })
 
   test('nested arrays', () => {
-    const result = match([1, [2, [3, 4, 5]]], [[1, [2, [3]]], () => false], [[1, [2, [3, 4, 5]]], ok])
+    const result = match([1, [2, [3, 4, 5]]], [[1, [2, [3]]], () => false], [[
+      1,
+      [2, [3, 4, 5]],
+    ], ok])
 
     expect(result).toBe(true)
   })
 
   test('objects', () => {
-    const result = match({ a: 1, b: 2 }, [{ a: 2 }, () => false], [{ b: 2 }, ok])
+    const result = match({ a: 1, b: 2 }, [{ a: 2 }, () => false], [
+      { b: 2 },
+      ok,
+    ])
 
     expect(result).toBe(true)
   })
