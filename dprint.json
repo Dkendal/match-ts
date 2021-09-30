@@ -3,14 +3,18 @@
   "lineWidth": 120,
   "indentWidth": 2,
   "typescript": {
+    "semiColons": "asi",
+    "quoteStyle": "preferSingle",
+    "useBraces": "preferNone",
+    "memberExpression.linePerExpression": true,
+    "binaryExpression.linePerExpression": true
   },
-  "json": {
-  },
-  "markdown": {
-  },
-  "toml": {
-  },
-  "includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml}"],
+  "json": {},
+  "markdown": {},
+  "toml": {},
+  "includes": [
+    "**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml}"
+  ],
   "excludes": [
     "**/node_modules",
     "**/*-lock.json"
