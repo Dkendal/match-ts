@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+
+  "extends": "../../../tsconfig-base",
+
+  "compilerOptions": {
+    "baseUrl": "../../..",
+    "noUnusedLocals": false,
+    "noEmit": true,
+    "noErrorTruncation": true
+  },
+
+  "files": [
+    "when.ts",
+    "variable-capture.ts"
+  ],
+
+  "references": [
+    { "path": "../../../src" }
+  ]
+}

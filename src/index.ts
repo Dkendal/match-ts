@@ -1,79 +1,52 @@
-import { inspect } from "util";
+import { Narrow } from 'ts-toolbelt/out/Function/Narrow'
+import { inspect } from 'util'
 
-const __kind__ = Symbol.for("kind");
-const __capture__ = Symbol.for("capture");
+import {
+  __capture__,
+  __kind__,
+  any_,
+  bigint_,
+  boolean_,
+  function_,
+  number_,
+  object_,
+  rest_,
+  string_,
+  symbol_,
+} from './const'
 
-type Kind =
-  | typeof any_
-  | typeof rest_
-  | typeof string_
-  | typeof number_
-  | typeof boolean_
-  | typeof function_
-  | typeof object_;
+import type { Capture, Hole, Kind, PatternHandler } from './types'
 
-const any_ = "any";
-const rest_ = "rest";
-const string_ = "string";
-const number_ = "number";
-const boolean_ = "boolean";
-const function_ = "function";
-const object_ = "object";
-const symbol_ = "symbol";
-
-type NonPrimitive = Function | Object;
-
-type Capture<Name extends String = string, Pattern = unknown> =
-  | OpenCapture<Name, Pattern>
-  | ClosedCapture<Name, Pattern>;
-
-interface OpenCapture<Name extends String, Pattern> {
-  (pattern: unknown): ClosedCapture<String, Pattern>;
-  [__capture__]: Name;
+function hole<Type, Label extends Kind>(kind: Label): Hole<Type, Label> {
+  return { [__kind__]: kind } as any
 }
 
-interface ClosedCapture<Name extends String, Pattern> {
-  [__capture__]: Name;
-  pattern?: Pattern;
+function capture<Name extends string>(name: Name): Capture<Name, typeof holes.any>
+
+function capture<Name extends string, Pattern>(name: Name, pattern: Narrow<Pattern>): Capture<Name, Pattern>
+
+function capture(name: any, pattern: any = holes.any): Capture<any, any> {
+  return Object.freeze({ [__capture__]: name, pattern })
 }
 
-function capture<Name extends String, Pattern>(
-  name: Name,
-): OpenCapture<Name, Pattern> {
-  return Object.assign(
-    (pattern: any): ClosedCapture<Name, Pattern> => {
-      return {
-        [__capture__]: name,
-        pattern,
-      };
-    },
-    {
-      [__capture__]: name,
-    },
-  );
-}
+export const V = capture
 
-export const V = capture;
-
-function isCapture(term: unknown): term is Capture<string, unknown> {
-  return isNonPrimitive(term) && __capture__ in term;
+function isCapture(term: unknown): term is Capture {
+  return isNonPrimitive(term) && __capture__ in term
 }
 
 function isHole(term: unknown): term is Hole {
-  return typeof term === "object" && term !== null && __kind__ in term;
+  return typeof term === 'object' && term !== null && __kind__ in term
 }
 
 function isSpecial(term: unknown): term is Hole | Capture {
-  return (
-    isNonPrimitive(term)
-    && (__kind__ in term || __capture__ in term)
-  );
+  return isNonPrimitive(term) && (__kind__ in term || __capture__ in term)
 }
 
 function testHole(hole: Hole, term: unknown): boolean {
-  if (!(__kind__ in hole)) throw "ni";
+  if (!(__kind__ in hole)) throw 'ni'
 
-  const holeKind = hole[__kind__];
+  const holeKind = hole[__kind__]
 
   switch (holeKind) {
     // FIXME this doesn't really work like the others it only receives one of
@@ -82,51 +55,92 @@ function testHole(hole: Hole, term: unknown): boolean {
     // values.
     case rest_:
     case any_:
-      return true;
+      return true
     default:
-      return typeof term === holeKind;
+      return typeof term === holeKind
   }
 }
 
-interface Hole {
-  [__kind__]: Kind;
+// This little interface dance is done in the name of "readability" (debatable)
+
+interface __any extends Hole<any, 'any'> {}
+const __any: __any = hole(any_)
+
+export interface __string extends Hole<string, 'string'> {}
+const __string: __string = hole(string_)
+
+export interface __number extends Hole<number, 'number'> {}
+const __number: __number = hole(number_)
+
+export interface __boolean extends Hole<boolean, 'boolean'> {}
+const __boolean: __boolean = hole(boolean_)
+
+export interface __symbol extends Hole<symbol, 'symbol'> {}
+const __symbol: __symbol = hole(symbol_)
+
+export interface __bigint extends Hole<bigint, 'bigint'> {}
+const __bigint: __bigint = hole(bigint_)
+
+export interface __object extends Hole<Object, 'object'> {}
+const __object: __object = hole(object_)
+
+export interface __function extends Hole<Function, 'function'> {}
+const __function: __function = hole(function_)
+
+export interface __rest extends Hole<any[], 'rest'> {}
+const __rest: __rest = hole(rest_)
+
+export const holes = {
+  string: __string,
+  number: __number,
+  boolean: __boolean,
+  object: __object,
+  function: __function,
+  symbol: __symbol,
+  bigint: __bigint,
+
+  // This is intentionally not the same object as __ to prevent
+  // a circular reference
+  any: __any,
+
+  rest: __rest,
+  // Aliases
+  tail: __rest,
+  tl: __rest,
 }
 
-function hole<T>(sym: T) {
-  return { [__kind__]: sym };
+export interface __ extends Hole<any, 'any'> {
+  string: __string
+  number: __number
+  boolean: __boolean
+  // There is something weird going on where including this causes
+  // RecursiveCollect to think that it has a circular reference
+  object: __object
+  function: __function
+  symbol: __symbol
+  bigint: __bigint
+  any: __any
+  rest: __rest
+  tail: __rest
+  tl: __rest
 }
 
-export const rest = hole(rest_);
+/**
+ * A hole for any value, and an object that has references
+ * to the other type holes.
+ */
+// TODO better syntax for function object
+export const __: __ = Object.assign(hole(any_), holes)
 
-export const __ = {
-  [__kind__]: any_,
-
-  string: hole(string_),
-  number: hole(number_),
-  boolean: hole(boolean_),
-  object: hole(object_),
-  function: hole(function_),
-  symbol: hole(symbol_),
-
-  rest,
-  tail: rest,
-  tl: rest,
-} as const;
-
-/** This is just to make things more legible, All it does is return a two
- * element tuple */
-export function when<A, B>(a: A, b: B): [A, B] {
-  return [a, b];
+export function when<Pattern, Handler extends PatternHandler<Pattern>>(a: Pattern, b: Handler): [Pattern, Handler] {
+  return [a, b]
 }
 
-export function match(
-  valueRoot: unknown,
-  ...cases: [unknown, Function][]
-): any {
+export function match(valueRoot: unknown, ...cases: [unknown, Function][]): any {
   // TODO error on no cases
   next_case:
   for (let [patternRoot, handler] of cases) {
-    const captures: Record<string, unknown> = {};
+    const captures: Record<string, unknown> = {}
     // TODO type guards (functions)
     // if (typeof patternRoot === "function")
 
@@ -139,66 +153,65 @@ export function match(
       // is a node that needs to be descended into the nodes for each tree are
       // pushed onto the stack which alleviates the need for a recursive call,
       // additional function creation on the heap, etc.
-      const stack = [[patternRoot, valueRoot]];
+      const stack = [[patternRoot, valueRoot]]
       while (stack.length > 0) {
-        const [pnode, vnode] = stack.pop() as [any, any];
+        const [pnode, vnode] = stack.pop() as [any, any]
 
         if (isCapture(pnode)) {
-          if ("pattern" in pnode) {
-            stack.push([pnode.pattern, vnode]);
-          }
-          captures[pnode[__capture__]] = vnode;
-          continue;
+          if ('pattern' in pnode)
+            stack.push([pnode.pattern, vnode])
+          captures[pnode[__capture__]] = vnode
+          continue
         }
 
         if (isHole(pnode)) {
-          if (testHole(pnode, vnode)) continue;
-          else continue next_case;
+          if (testHole(pnode, vnode)) continue
+          else continue next_case
         }
 
         // Special case for arrays
         if (
           pnode instanceof Array
-          && pnode.length !== vnode.length
-          // If the list has any elements and the last is not a "rest"
-          && (pnode.length === 0 || pnode[pnode.length - 1] !== rest)
+          && pnode.length !== vnode.length // If the list has any elements and the last is not a "rest"
+          && (pnode.length === 0 || pnode[pnode.length - 1] !== __rest)
         ) {
-          continue next_case;
+          continue next_case
         }
 
-        const lastIdx = (pnode.length - 1).toString();
+        const lastIdx = (pnode.length - 1).toString()
 
         // TODO: be more careful about dealing with prototypes
         for (let [attr, pchild] of Object.entries(pnode)) {
           // Check if there is a malformed "rest"
-          if (pchild === rest && attr !== lastIdx) {
-            throw "rest must be the last element of an array";
-          }
+          if (pchild === __rest && attr !== lastIdx)
+            throw 'rest must be the last element of an array'
 
-          const vchild = vnode[attr];
+          const vchild = vnode[attr]
 
           // Push node to handle at the top of the loop
-          if (isSpecial(pchild)) stack.push([pchild, vchild]);
-          else if (typeof pchild !== typeof vchild) continue next_case;
+          if (isSpecial(pchild)) stack.push([pchild, vchild])
+          else if (typeof pchild !== typeof vchild) continue next_case
           // Push node onto stack to descend into
-          else if (typeof pchild === "object") stack.push([pchild, vchild]);
+          else if (typeof pchild === 'object') stack.push([pchild, vchild])
           // Leaf comparison
-          else if (vchild !== pchild) continue next_case;
+          else if (vchild !== pchild) continue next_case
         }
       }
-      return handler(captures);
+      return handler(captures)
     }
 
     // maybe this can be folded into the logic above
     // Leaf comparison
-    if (patternRoot !== valueRoot) continue next_case;
-    return handler(captures);
+    if (patternRoot !== valueRoot) continue next_case
+    return handler(captures)
   }
 
-  throw `unmatched case: ${inspect(valueRoot)}`;
+  throw `unmatched case: ${inspect(valueRoot)}`
 }
 
+type NonPrimitive = Function | Object
+
 function isNonPrimitive(term: unknown): term is NonPrimitive {
-  const t = typeof term;
-  return (t === "object" || t === "function") && term !== null;
+  const t = typeof term
+  return (t === 'object' || t === 'function') && term !== null
 }
