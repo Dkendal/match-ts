@@ -1,4 +1,4 @@
-import { __, V, when } from 'src/index'
+import { __, V, when } from 'src'
 import { Test } from 'ts-toolbelt'
 
 type Pass = Test.Pass

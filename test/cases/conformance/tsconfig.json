@@ -10,9 +10,8 @@
     "noErrorTruncation": true
   },
 
-  "files": [
-    "when.ts",
-    "variable-capture.ts"
+  "include": [
+    "*.ts"
   ],
 
   "references": [

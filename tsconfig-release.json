@@ -3,10 +3,12 @@
 
   "extends": "./tsconfig.node10",
 
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+
   "references": [
-    { "path": "./src" },
-    { "path": "./perf" },
-    { "path": "./test/cases/conformance" }
+    { "path": "./src" }
   ],
 
   "files": []

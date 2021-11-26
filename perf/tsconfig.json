@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig-base.json",
+
+  "compilerOptions": {
+    "lib": ["dom", "es2020"]
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../src" }
+  ]
+}
