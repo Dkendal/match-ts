@@ -43,7 +43,7 @@
     "clean": "make clean",
     "build": "make build",
     "build-release": "make build-release",
-    "prepack": "make prerelease"
+    "prepack": "make prepack"
   },
   "dependencies": {
     "ts-toolbelt": "^9.6.0"
