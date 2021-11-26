@@ -1,6 +1,6 @@
 {
   "name": "@dkendal/match",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Dylan Kendal <dylankendal@gmail>",
   "license": "MIT",
   "homepage": "https://github.com/dkendal/pattern-match.js",
