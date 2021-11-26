@@ -2,6 +2,8 @@
 
 TSC_OPTS=--assumeChangesOnlyAffectDirectDependencies --verbose --listEmittedFiles
 
+log=@echo $$(tput smso)$(1)$$(tput rmso)
+
 all: build
 
 clean:
@@ -16,17 +18,22 @@ prerelease: \
 	test-release
 
 build-release: clean
+	$(call log,# build-release / tsc)
 	yarn run tsc --build tsconfig-release.json ${TSC_OPTS}
+	$(call log,# build-release / copying dist)
 	rsync -vv -a --include="*.d.ts" --include="*.js" --exclude="*" ./build/src/* ./dist/
+	$(call log,# build-release ✅)
 
 test-release: build-release
-	@echo "# Test / Pack"
-	@echo "## Test / Pack / CommonJS"
+	$(call log,# test-release / Package exports)
+	package-check
+	$(call log,# test-release / CommonJS)
 	yarn workspace test-pack-commonjs install
 	yarn workspace test-pack-commonjs test
-	@echo "## Test / Pack / ESM"
+	$(call log,# test-release / ESM)
 	yarn workspace test-pack-esm install
 	yarn workspace test-pack-esm test
+	$(call log,# test-release ✅)
 
 perf: build
 	for file in build/perf/*.js; do node $$file; done
