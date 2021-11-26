@@ -1,6 +1,6 @@
 {
   "name": "@dkendal/match",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Dylan Kendal <dylankendal@gmail>",
   "license": "MIT",
   "homepage": "https://github.com/dkendal/pattern-match.js",
@@ -35,7 +35,7 @@
     "clean": "make clean",
     "build": "make build",
     "build-release": "make build-release",
-    "prepublishOnly": "make prepublishOnly"
+    "prepack": "make prerelease"
   },
   "dependencies": {
     "ts-toolbelt": "^9.6.0"
