@@ -1,7 +1,6 @@
 import { strictEqual } from "assert";
-import { match, __, V } from "@dkendal/match";
 
-strictEqual(typeof match, "function");
+import { match, __, V } from "@dkendal/match";
 
 const result = match(
   { type: "ok", value: { type: "img", src: "https://example.com/" } },
@@ -10,4 +9,4 @@ const result = match(
 
 strictEqual(result, "https://example.com/");
 
-console.log("Test suite pass: test-pack-esm");
+console.log("Test suite pass: test-pack-ts");

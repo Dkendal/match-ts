@@ -1,14 +1,7 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-
-  "extends": "./tsconfig.node10",
-
-  "compilerOptions": {
-    "outDir": "dist"
-  },
-
   "references": [
-    { "path": "./src" }
+    { "path": "./src/tsconfig-release-esm.json" },
+    { "path": "./src/tsconfig-release-cjs.json" }
   ],
 
   "files": []

@@ -1,5 +1,6 @@
 {
   "name": "test-pack-commonjs",
+  "type": "commonjs",
   "packageManager": "yarn@3.1.0",
   "private": true,
   "dependencies": {
