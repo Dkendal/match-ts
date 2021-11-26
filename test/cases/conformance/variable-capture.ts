@@ -14,12 +14,9 @@ import { Test } from 'ts-toolbelt'
 type $a<T = any> = $<'a', T>
 type $b<T = any> = $<'b', T>
 type $c<T = any> = $<'c', T>
-type $d<T = any> = $<'d', T>
-type $e<T = any> = $<'e', T>
 
 const { check, checks } = Test
 type Pass = Test.Pass
-type Fail = Test.Fail
 
 checks([
   check<HoleInnerType<__>, any, Pass>(),

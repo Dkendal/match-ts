@@ -2,3 +2,6 @@ node_modules
 yarn-error.log
 tsconfig.tsbuildinfo
 build
+.yarn
+dist
+*.tgz

@@ -1,4 +1,4 @@
-import { Narrow } from 'ts-toolbelt/out/Function/Narrow'
+import { A, F, L } from 'ts-toolbelt'
 
 import {
   __capture__,
@@ -14,7 +14,13 @@ import {
   symbol_,
 } from './const'
 
-import type { Capture, Hole, Kind, PatternHandler } from './types'
+import type {
+  Capture,
+  CaseParameters,
+  Hole,
+  Kind,
+  PatternHandler,
+} from './types'
 
 function hole<Type, Label extends Kind>(kind: Label): Hole<Type, Label> {
   return { [__kind__]: kind } as any
@@ -26,7 +32,7 @@ function capture<Name extends string>(
 
 function capture<Name extends string, Pattern>(
   name: Name,
-  pattern: Narrow<Pattern>,
+  pattern: F.Narrow<Pattern>,
 ): Capture<Name, Pattern>
 
 function capture(name: any, pattern: any = holes.any): Capture<any, any> {
@@ -143,10 +149,30 @@ export function when<Pattern, Handler extends PatternHandler<Pattern>>(
   return [a, b]
 }
 
-export function match(
-  valueRoot: unknown,
-  ...cases: [unknown, Function][]
-): any {
+export function match<
+  Value,
+  Patterns extends unknown[],
+  Returns extends [unknown, unknown][],
+  Cases extends {
+    [K in keyof Returns]: Returns[K] extends [unknown, unknown]
+      ? [Returns[K][0], (args: never) => Returns[K][1]]
+      : never
+  },
+>(
+  value: Value,
+  ...cases:
+    & {
+      [K in keyof Patterns]: [
+        Patterns[K],
+        (args: CaseParameters<Value, Patterns[K]>) => any,
+      ]
+    }
+    & Cases
+): L.UnionOf<
+  A.Cast<{ [K in keyof Cases]: F.Return<Cases[K][1]> }, readonly any[]>
+>
+
+export function match(valueRoot: any, ...cases: any[]): any {
   // TODO error on no cases
   next_case:
   for (let [patternRoot, handler] of cases) {
@@ -168,8 +194,7 @@ export function match(
         const [pnode, vnode] = stack.pop() as [any, any]
 
         if (isCapture(pnode)) {
-          if ('pattern' in pnode)
-            stack.push([pnode.pattern, vnode])
+          if ('pattern' in pnode) stack.push([pnode.pattern, vnode])
           captures[pnode[__capture__]] = vnode
           continue
         }
@@ -182,7 +207,8 @@ export function match(
         // Special case for arrays
         if (
           pnode instanceof Array
-          && pnode.length !== vnode.length // If the list has any elements and the last is not a "rest"
+          && pnode.length !== vnode.length
+          // If the list has any elements and the last is not a "rest"
           && (pnode.length === 0 || pnode[pnode.length - 1] !== __rest)
         ) {
           continue next_case

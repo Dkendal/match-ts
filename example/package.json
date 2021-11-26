@@ -1,0 +1,10 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@dkendal/match": "^0.1.0",
+    "ts-node": "^10.2.1"
+  }
+}

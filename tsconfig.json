@@ -5,6 +5,7 @@
 
   "references": [
     { "path": "./src" },
+    { "path": "./perf" },
     { "path": "./test/cases/conformance" }
   ],
 

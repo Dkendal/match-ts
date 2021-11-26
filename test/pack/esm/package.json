@@ -1,0 +1,11 @@
+{
+  "name": "test-pack-esm",
+  "packageManager": "yarn@3.1.0",
+  "private": true,
+  "dependencies": {
+    "@dkendal/match": "workspace:*"
+  },
+  "scripts": {
+    "test": "node ./index.mjs"
+  }
+}

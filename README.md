@@ -15,7 +15,7 @@ The match function lets us compare a value against many patterns until
 we find one that matches.
 
 ```typescript
-import { __, match, when } from "@dkendal/match"
+import { __, match, when } from '@dkendal/match'
 
 match(
   [1, 2, 3],
