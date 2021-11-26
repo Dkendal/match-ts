@@ -21,6 +21,7 @@ build-release:
 	$(call log,# build-release / tsc ...)
 	yarn run tsc --build tsconfig-release.json ${TSC_OPTS}
 	$(call log,# build-release ✅)
+	rm dist/*/*.tsbuildinfo
 
 test-release: \
 	build-release \
