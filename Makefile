@@ -1,8 +1,11 @@
 .PHONY: test test-release perf clean build build-release
 
-TSC_OPTS=--assumeChangesOnlyAffectDirectDependencies --verbose --listEmittedFiles
+TSC_OPTS = --assumeChangesOnlyAffectDirectDependencies --verbose --listEmittedFiles
 
-log=@echo $$(tput smso)$(1)$$(tput rmso)
+log = @echo $$(tput smso)$(1)$$(tput rmso)
+
+newtype_source_files = $(shell find src -name '*.nt')
+newtype_to_typescript = $(shell find src -name '*.nt')
 
 all: build
 
@@ -10,12 +13,14 @@ clean:
 	yarn run tsc --build --clean
 	rm -rf dist
 
-build:
-	yarn tsc --build ${TSC_OPTS}
+newtype:
+	@# FIXME make this repeatable outside of my local computer
+	racket -l dts/main src/types.nt | prettier --parser typescript > src/types.d.ts
 
-prepack: \
-	build-release \
-	test-release
+build: newtype
+	yarn tsc --build $(TSC_OPTS)
+
+prepack: build-release test-release
 
 build-release:
 	$(call log,# build-release / tsc ...)
