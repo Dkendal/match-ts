@@ -1,0 +1,160 @@
+#lang dts
+
+global (Exclude String Record Object Array)
+
+import "ts-toolbelt" (A B I M Union)
+
+import "." ( __ )
+ 
+import "./const" ( __capture__
+                   __kind__
+                   any_
+                   bigint_
+                   boolean_
+                   function_
+                   number_
+                   object_
+                   rest_
+                   string_
+                   symbol_ )
+
+type True = 1
+
+type ExtractSubcapture T =
+   match T with
+   | (M.Primitive | M.BuiltIn) -> never
+   | object -> T[(Exclude (keyof T) ((keyof []) | (keyof {})))]
+
+type PartialAssignment K V =
+   if V !<: never and K <: string then { k <- K | k: V }
+
+type EmptyToNever T =
+  if {} !<: T then T
+
+export type Kind =
+  | (typeof any_)
+  | (typeof rest_)
+  | (typeof string_)
+  | (typeof number_)
+  | (typeof boolean_)
+  | (typeof function_)
+  | (typeof symbol_)
+  | (typeof bigint_)
+  | (typeof object_)
+
+export interface Hole (Type = any) (Label = any) = {
+  T: Type
+  readonly [__kind__]: Label
+}
+
+export type HoleInnerType T =
+  if T <: (Hole ^U) then U else T
+
+export interface Capture (Name <: String = any) (Pattern = any) = {
+  readonly [__capture__]: Name
+  readonly pattern: Pattern
+}
+
+type CapturePattern T =
+  if T <: (Capture any ^Pattern) then Pattern
+  else T
+
+type RecursiveExpandCapture T =
+  -- TODO add equals operator
+  if (A.Equals T any) <: True then T
+  else match T with
+       | (Hole | Capture) -> (ExpandCapture T)
+       | (Record string any) -> { K <- (keyof T) | K: (ExpandCapture (T[K])) }
+
+export type ExpandCapture T =
+  (RecursiveExpandCapture (CapturePattern (HoleInnerType T)))
+
+type NeverToEmpty T =
+  if T == never then {} else T
+
+type Explode T = T[(keyof T)]
+
+export type RecursiveCollect Node =
+  (NeverToEmpty (DoRecursiveCollect Node))
+
+type IsLeafNode T =
+  (B.Or
+    (B.Not (A.Extends T (Record string any)))
+    (B.Or (A.Extends T Hole) (A.Equals T any)))
+
+type WalkChildren Node =
+  (Explode { Key <- (keyof Node)
+           | Key: (DoRecursiveCollect Node[Key])
+           })
+
+type DoRecursiveCollect Node =
+  if (IsLeafNode Node) <: True then never
+  else if Node <: (Capture any ^P) then Node | (DoRecursiveCollect P)
+  else (WalkChildren Node)
+
+type UnionizeCapture T =
+  if T <: (Capture ^K ^V) then if K <: string then { k <- K | k: V }
+
+export type CaptureToEntry T =
+  (Union.Merge (UnionizeCapture T))
+
+export type VariableCapture T =
+  (ExpandCapture (CaptureToEntry (RecursiveCollect T)))
+
+export type PatternHandler Pattern =
+  (VariableCapture Pattern) => unknown
+
+type IsTopType T = 
+  let top = | (A.Equals T unknown)
+            | (A.Equals T object)
+            | (A.Equals T Object)
+            | (A.Equals T any)
+  in (A.Extends True top)
+
+export type UnifyAll Value Pattern =
+  if (IsTopType Value) <: True then (VariableCapture Pattern)
+  else if (Overlapping Value (ExpandCapture Pattern)) <: {}
+  then (DoUnifyAll Value Pattern)
+
+export type DoUnifyAll Value Pattern =
+  let overlap x = (Overlapping Value (ExpandCapture x)) in
+  if Pattern <: (Capture ^VarName ^Child)
+  then | (PartialAssignment VarName (overlap Child))
+       | (UnifyAll Value Child)
+  else if (overlap Pattern) <: object
+  then (ExtractSubcapture
+        { K <- (keyof Value)
+        | K : if K <: (keyof Pattern) then (UnifyAll Value[K] Pattern[K])
+        })
+
+
+export type ShouldUnifyAll Value Pattern =
+  (B.Not
+    (B.Or
+      (A.Equals Pattern any) & (A.Equals Value any)
+      (A.Extends Pattern M.Primitive) & (A.Extends Value M.Primitive)))
+
+export type CaseParameters Value Pattern =
+  (EmptyToNever (Union.Merge (UnifyAll Value Pattern)))
+
+export type Overlapping A B (Depth <: I.Iteration = (I.IterationOf 0)) =
+  if (A.Equals A any) <: True then B
+  else if A <: B then A
+  else if [A B (keyof A)] <: | [(Array any) (Array any) any]
+                             | [object object (keyof B)]
+  then (RejectMismatch
+         { Key <- (keyof A)
+         | Key :
+           if Key <: (keyof B) then (Overlapping A[Key] B[Key] (I.Next Depth))
+           else A[Key]
+         })
+
+export type RejectMismatch T =
+  if {} !<: T and T !<: (AnyNever (A.Cast T object)) then T
+
+export type AnyNever (T <: object) =
+  if (keyof T) <: ^S and S <: any
+  then { K <- (A.Cast S (string | number | symbol))
+       | K : never }
+
+-- vi: syntax=haskell:
